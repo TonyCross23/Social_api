@@ -22,4 +22,9 @@ class Feed extends Model
         return $this->morphOne(Media::class, 'model');
     }
 
+    // commet
+    public function comment () {
+        return $this->hasMany(Comment::class,'user_id');
+    }
+
 }

@@ -8,13 +8,14 @@ use App\Models\Feed;
 use Illuminate\Http\Request;
 use App\Http\Resources\FeedResource;
 use App\Models\Media;
+use Exception;
 use Illuminate\Support\Facades\Storage;
 
 class FeedController extends Controller
 {
     //all feed
     public function allFeed () {
-        $feeds = Feed::get();
+        $feeds = Feed::with('comment')->get();
         
         return FeedResource::collection($feeds)->additional(['message' => 'success']);
     }
@@ -26,26 +27,31 @@ class FeedController extends Controller
             'description' => 'required',
         ]);
 
-        $file_name = null;
+        try {
+                 $file_name = null;
 
-        if($request->hasFile('image')){
-            $file = $request->file('image');
-            $file_name = uniqid() . '.' . date('Y-m-d-H-i-s'). '.' . $file->getClientOriginalExtension();
-            Storage::put('Feed/' . $file_name, file_get_contents($file));
+                if($request->hasFile('image')){
+                    $file = $request->file('image');
+                    $file_name = uniqid() . '.' . date('Y-m-d-H-i-s'). '.' . $file->getClientOriginalExtension();
+                    Storage::put('media/' . $file_name, file_get_contents($file));
+                }
+
+                $feed = new Feed();
+                $feed->user_id = auth()->user()->id;
+                $feed->description = $request->description;
+                $feed->save();
+
+                $media = new Media();
+                $media->file_name = $file_name;
+                $media->file_type = 'image';
+                $media->model_id = $feed->id;
+                $media->model_type = Feed::class;
+                $media->save();
+
+                return BlogHelper::success(new FeedCreateResource($feed,$media),'Successfully Uploaded');
+        } catch (Exception $e) {
+                return BlogHelper::fail($e->getMessage());
         }
-
-        $feed = new Feed();
-        $feed->user_id = auth()->user()->id;
-        $feed->description = $request->description;
-        $feed->save();
-
-        $media = new Media();
-        $media->file_name = $file_name;
-        $media->file_type = 'image';
-        $media->model_id = $feed->id;
-        $media->model_type = Feed::class;
-        $media->save();
-
-        return BlogHelper::success(new FeedCreateResource($feed,$media),'Successfully Uploaded');
+   
     }
 }

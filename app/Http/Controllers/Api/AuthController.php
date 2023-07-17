@@ -26,8 +26,6 @@ class AuthController extends Controller
         'password' => 'required|min:8',
        ]);
 
-       DB::beginTransaction();
-      try {
                 $file_name = null;
 
             if($request->hasFile('image')){
@@ -51,14 +49,11 @@ class AuthController extends Controller
             $media->model_type = User::class;
             $media->save();
 
-                $token = $user->createToken('blog')->accessToken;
+             $token = $user->createToken('blog')->accessToken;
             return BlogHelper::success([
                 'access_token' => $token,
             ]);
-      } catch (Exception $e) {
-        DB::rollBack();
-        return BlogHelper::fail($e->getMessage());
-      }
+     
     }
 
     // login 
