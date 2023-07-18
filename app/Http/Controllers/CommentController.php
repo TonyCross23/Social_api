@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Feed;
 use App\Models\Comment;
 use App\Helper\BlogHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Resources\CommnetResource;
+use App\Http\Resources\CommetResource;
+
 
 class CommentController extends Controller
 {
@@ -25,7 +27,7 @@ class CommentController extends Controller
         $comment->comment = $request->comment;
         $comment->save();
 
-         return BlogHelper::success(new CommnetResource($comment),'Success');
+         return BlogHelper::success(new CommetResource($comment),'Success');
     }
 
     // comment delete
@@ -45,5 +47,13 @@ class CommentController extends Controller
 
         return BlogHelper::success([],'Succefull Deleted');
       
+    }
+
+    // get all comment
+    public function getAllComment () {
+    $feed_id = request()->feed_id;
+    $comment = Feed::find($feed_id)->comment;
+
+        return CommetResource::collection($comment)->additional(['message' => 'success']);
     }
 }

@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Helper\BlogHelper;
-use App\Http\Resources\FeedCreateResource;
+use Exception;
 use App\Models\Feed;
+use App\Models\Media;
+use App\Models\Comment;
+use App\Helper\BlogHelper;
 use Illuminate\Http\Request;
 use App\Http\Resources\FeedResource;
-use App\Models\Media;
-use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\FeedCreateResource;
+use App\Http\Resources\FeedDetailResource;
 
 class FeedController extends Controller
 {
@@ -18,6 +21,15 @@ class FeedController extends Controller
         $feeds = Feed::with('comment')->get();
         
         return FeedResource::collection($feeds)->additional(['message' => 'success']);
+    }
+
+    // feed detail
+    public function detail ($id) {
+        $feed_detail = Feed::where('id',$id)->where('user_id',Auth::user()->id)->with('comment')->get();
+
+        $comments = Comment::where('feed_id',$id)->get();
+
+       return FeedDetailResource::collection($feed_detail,$comments)->additional(['message' => 'success']);
     }
 
     // create feed

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Models\Comment;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -24,7 +25,7 @@ class Feed extends Model
 
     // commet
     public function comment () {
-        return $this->hasMany(Comment::class,'user_id');
+        return $this->hasMany(Comment::class);
     }
 
 }
