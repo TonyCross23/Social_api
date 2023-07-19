@@ -26,7 +26,8 @@ class AuthController extends Controller
         'password' => 'required|min:8',
        ]);
 
-                $file_name = null;
+          try {
+                  $file_name = null;
 
             if($request->hasFile('image')){
                 $file = $request->file('image');
@@ -53,6 +54,9 @@ class AuthController extends Controller
             return BlogHelper::success([
                 'access_token' => $token,
             ]);
+          } catch (\Exception $e) {
+            return BlogHelper::fail($e->getMessage());
+          }
      
     }
 

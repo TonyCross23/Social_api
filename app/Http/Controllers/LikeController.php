@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Helper\BlogHelper;
-use App\Http\Resources\LikeResource;
 use App\Models\Like;
+use App\Helper\BlogHelper;
 use Illuminate\Http\Request;
+use App\Http\Resources\LikeResource;
+use Illuminate\Support\Facades\Auth;
 
 
 class LikeController extends Controller
@@ -23,5 +24,24 @@ class LikeController extends Controller
         $like->save();
 
         return BlogHelper::success(new LikeResource($like));
+    }
+
+    // unlike
+    public function unLike ($id,Request $request) {
+
+        $like = Like::where('id',$id)->where('user_id',auth()->user()->id)->find($id);
+
+        if(!$like){
+            return BlogHelper::fail(['message' => 'Not Found']);
+        }
+
+        if($like->user_id !=Auth::user()->id) {
+            return BlogHelper::fail([]);
+        }
+
+     $like->delete($id);
+
+     return BlogHelper::success(new LikeResource($like),'success');
+        
     }
 }

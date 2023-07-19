@@ -8,6 +8,8 @@ use App\Models\Media;
 use App\Models\Comment;
 use App\Helper\BlogHelper;
 use Illuminate\Http\Request;
+use PhpParser\Node\Stmt\TryCatch;
+use Illuminate\Support\Facades\DB;
 use App\Http\Resources\FeedResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -39,6 +41,7 @@ class FeedController extends Controller
             'description' => 'required',
         ]);
 
+        DB::beginTransaction();
         try {
                  $file_name = null;
 
@@ -60,8 +63,10 @@ class FeedController extends Controller
                 $media->model_type = Feed::class;
                 $media->save();
 
+                DB::commit();
                 return BlogHelper::success(new FeedCreateResource($feed,$media),'Successfully Uploaded');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
+                DB::rollBack();
                 return BlogHelper::fail($e->getMessage());
         }
    
